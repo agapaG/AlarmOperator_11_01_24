@@ -12,6 +12,16 @@ namespace AlarmOperator
 	/// </summary>
 	public partial class App : Application
 	{
+		internal static string? NameOperator { get; set; }
+
+		#region EnableButtons
+		internal static bool IsButtonsEnable { get; set; } = false;
+		internal static bool _CanEraseSignal { get; set; } = false;
+		#endregion
+
+
+
+
 		internal static IHost __Host;
 		public static IHost Host => __Host
 			??= Program.CreateHostBuilder(Environment.GetCommandLineArgs()).Build();

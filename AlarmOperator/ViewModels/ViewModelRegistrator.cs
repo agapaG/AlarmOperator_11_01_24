@@ -7,6 +7,7 @@ namespace AlarmOperator.ViewModels
 	{
 		public static IServiceCollection RegisterViewModel(this IServiceCollection services) => services
 			.AddSingleton<MainVindowViewModel>()
+			.AddTransient<DrawDownRegisterViewModel>()
 		;
 	}
 }

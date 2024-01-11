@@ -7,5 +7,9 @@ namespace AlarmOperator.ViewModels
 	{
 		public MainVindowViewModel MainViewModel =>
 			App.Services.GetRequiredService<MainVindowViewModel>();
+
+		public DrawDownRegisterViewModel DDRegisterViewModel =>
+			App.Services.GetRequiredService<DrawDownRegisterViewModel>();
+
 	}
 }

@@ -3,11 +3,529 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" mc:Ignorable="d"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:fa="http://schemas.fontawesome.io/icons/"
         xmlns:local="clr-namespace:AlarmOperator"
+        xmlns:cmd="clr-namespace:AlarmOperator.Infrastructure.Commands"
+        xmlns:conv="clr-namespace:AlarmOperator.Infrastructure.Convertors"
         DataContext="{Binding MainViewModel, Source={StaticResource Locator}}"
         Title="{Binding Title}" 
-        Height="450" Width="800">
-    <Grid>
+        Height="950" Width="1200">
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding WindowLoadedCommand}"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Closing" x:Name="W">
+            <i:InvokeCommandAction Command="{Binding ClosingWindowCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <Window.Resources>
+
+        <CollectionViewSource x:Key="cvsDrawDown" 
+                      Source="{Binding DataDown}">
+            <CollectionViewSource.GroupDescriptions>
+                <PropertyGroupDescription PropertyName="Tcentral"/>
+            </CollectionViewSource.GroupDescriptions>
+        </CollectionViewSource>
+
+
+        <conv:DrawDownToColorConverter x:Key="DrawDownToColorConverter"/>
+        
+        <cmd:CloseApplicationCommand x:Key="CloseApplicationCommand"/>
+    </Window.Resources>
+
+
+    <Grid Background="LightGray">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.027*"/>
+            <RowDefinition />
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+
+        <!--************************************MENU********************************************-->
+        <DockPanel Grid.Row="0" Margin="1" Background="White">
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="_Файл">
+                    <Separator/>
+                    <MenuItem Header="Выход" Command="{StaticResource CloseApplicationCommand}"/>
+                </MenuItem>
+                <MenuItem Header="_Инструменты" DataContext="{Binding DrawDownModel}">
+                    <MenuItem Header="Насстройка текста" Command="{Binding TextSettingCommand}"/>
+                </MenuItem>
+            </Menu>
+        </DockPanel>
+        <!--====================================================================================-->
+
+        <!--************************************Основное отображение****************************-->
+        <Grid Grid.Row="1" Margin="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.113*"/>
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <!--*********************************************************************************-->
+            <UniformGrid Grid.Row="0" Rows="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+
+                <!--****************************************-->
+                <Button Margin="0,5,20,0" Height="56"
+             Command="{Binding LogOutCommand}">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <fa:ImageAwesome Height="25" Icon="SignOut" Margin="0,0,5,0"/>
+                            <TextBlock Text="Выход" FontSize="14" FontFamily="arial"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+                <!--****************************************-->
+                <Button Margin="0,5,20,0" Height="56"
+             Command="{Binding BufferCommand}">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <fa:ImageAwesome Height="25" Icon="Database" Margin="0,0,5,0"/>
+                            <TextBlock Text="Буфер" FontSize="14" FontFamily="arial"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+                <!--****************************************-->
+                <Button Margin="0,5,20,0" Height="56">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <fa:ImageAwesome Height="25" Icon="Book" Margin="0,0,5,0"/>
+                            <TextBlock Text="Журнал" FontSize="14" FontFamily="arial"/>
+                        </StackPanel>
+                    </Button.Content>
+                    <Button.Command>
+                        <cmd:ManageDDRegisterCommand/>
+                    </Button.Command>
+                </Button >
+                <!--****************************************-->
+                <!--<Button Margin="0,5,20,0" Height="56"
+                    Command="{Binding ClearSignalCommand}">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <fa:ImageAwesome Height="25" Icon="Cut" Margin="0,0,5,0"/>
+                            <TextBlock Text="Очистить" FontSize="14" FontFamily="arial"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>-->
+                <!--****************************************-->
+                <Button Margin="0,5,10,0" Height="56" 
+             Command="{Binding SignalProcCommand}">
+                    <Button.Content>
+                        <StackPanel>
+                            <TextBlock Text="Обработка сигнала" FontSize="14" FontFamily="arial"/>
+                            <fa:ImageAwesome Height="25" Icon="Bullhorn"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+                <!--****************************************-->
+                <!--
+                <Button Margin="20,5,5,0" Height="56" Width="153">
+                    <Button.Content>
+                        <StackPanel>
+                            <TextBlock Text="Отключить централь" FontSize="14" FontFamily="arial"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+                -->
+            </UniformGrid>
+            <!--=================================================================================-->
+
+            <!--*********************************************************************************-->
+            <TabControl Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Принятые сигналы от АПС" FontFamily="times new roman" FontSize="16"></TextBlock>
+                        </StackPanel>
+                    </TabItem.Header>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.6*"/>
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="0.4*"/>
+                            <RowDefinition Height="0.4*" />
+                            <RowDefinition Height="0.5*"/>
+                            <RowDefinition Height="0.5*"/>
+                            <RowDefinition Height="0.5*"/>
+                        </Grid.RowDefinitions>
+
+                        <GridSplitter Grid.Column="1" HorizontalAlignment="Left"/>
+
+                        <!--**********************************************************************************************-->
+                        <GroupBox Header="Принятые сигналы" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0">
+                            <DataGrid Background="LightGray" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                  CanUserAddRows="False"
+                                  AutoGenerateColumns="False" 
+                                  VerticalScrollBarVisibility="Visible" 
+                                  HorizontalScrollBarVisibility="Auto" 
+                                  IsReadOnly="True"
+                                  ItemsSource="{Binding Source={StaticResource cvsDrawDown}}"
+                                  SelectedItem="{Binding SelectedDrawDown}"
+                                  SelectedIndex="{Binding SelectedIndex}">
+
+                                <DataGrid.GroupStyle>
+                                    <GroupStyle>
+                                        <GroupStyle.ContainerStyle>
+                                            <Style TargetType="{x:Type GroupItem}">
+                                                <Setter Property="Margin" Value="0,0,0,5"/>
+                                                <Setter Property="Background" Value="Brown"/>
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="{x:Type GroupItem}">
+                                                            <Expander IsExpanded="False" 
+                                                                  Background="{Binding Items[0], Converter={StaticResource DrawDownToColorConverter} }"
+                                                                  BorderBrush="Black"
+                                                                  Foreground="Black" 
+                                                                  BorderThickness="1,1,1,5">
+                                                                <Expander.Header>
+                                                                    <Border BorderThickness="2" BorderBrush="Blue" CornerRadius="2" VerticalAlignment="Stretch">
+                                                                        <DockPanel>
+                                                                            <TextBlock FontWeight="Bold" Text="{Binding Path=Name}" Margin="5,0,0,0" Width="100"/>
+                                                                            <TextBlock FontWeight="Bold" Text="{Binding Path=ItemCount}"/>
+                                                                            <TextBlock FontWeight="Bold" Text="{Binding Status}"/>
+                                                                        </DockPanel>
+                                                                    </Border>
+                                                                </Expander.Header>
+                                                                <Expander.Content>
+                                                                    <ItemsPresenter />
+                                                                </Expander.Content>
+                                                            </Expander>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </GroupStyle.ContainerStyle>
+                                    </GroupStyle>
+                                    <GroupStyle>
+                                        <GroupStyle.HeaderTemplate>
+                                            <DataTemplate>
+                                                <DockPanel Background="LightBlue">
+                                                    <TextBlock Text="{Binding Path=Name}" Foreground="Blue" Margin="30,0,0,0" Width="100"/>
+                                                    <TextBlock Text="{Binding Path=ItemCount}" Foreground="Blue"/>
+                                                </DockPanel>
+                                            </DataTemplate>
+                                        </GroupStyle.HeaderTemplate>
+                                    </GroupStyle>
+                                </DataGrid.GroupStyle>
+
+                                <DataGrid.RowStyle>
+                                    <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="Background" 
+                                                Value="{Binding Converter={StaticResource DrawDownToColorConverter}}"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGrid.RowStyle>
+
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Централь" Binding="{Binding Tcentral}"/>
+                                    <DataGridTextColumn Header="Описание сообщения" Binding="{Binding Description}" />
+                                    <DataGridTextColumn Header="Q" Binding="{Binding Q}" />
+                                    <DataGridTextColumn Header="Код" Binding="{Binding Code}" />
+                                    <DataGridTextColumn Header="Гру" Binding="{Binding Gru}" />
+                                    <DataGridTextColumn Header="Зона" Binding="{Binding NumZ}" />
+                                    <DataGridTextColumn Header="Статус" Binding="{Binding Status}" />
+                                    <DataGridTextColumn Header="Время" Binding="{Binding Time}" />
+                                    <DataGridTextColumn Header="Линия" Binding="{Binding Line}" />
+                                    <DataGridTextColumn Header="Примечание" Binding="{Binding Note}" Width="*" />
+                                </DataGrid.Columns>
+
+                            </DataGrid>
+                        </GroupBox>
+                        <!--==============================================================================================-->
+
+                        <!--**********************************************************************************************-->
+                        <GroupBox Grid.Row="0" Grid.Column="1" Header="Зона-Заказчик-Объект" FontFamily="time new roman" FontSize="14">
+                            <DataGrid Name="listzonzak" 
+                                  AutoGenerateColumns="False" SelectionMode="Single" 
+                                  VerticalScrollBarVisibility="Auto"
+                                  IsReadOnly="True"
+                                  ItemsSource="{Binding DetalModels}"
+                                  SelectedItem="{Binding SelectedItemLZAK }">
+
+                                <DataGrid.RowStyle>
+                                    <Style TargetType="DataGridRow">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter Property="Foreground" Value="LightBlue"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGrid.RowStyle>
+
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Гру" Binding="{Binding ZGru}"/>
+                                    <DataGridTextColumn Header="Зона" Binding="{Binding ZZone}"/>
+                                    <DataGridTextColumn Header="Название зоны" Binding="{Binding ZNZone}"/>
+                                    <DataGridTextColumn Header="Заказчик" Binding="{Binding ZReserve}"/>
+                                    <DataGridTextColumn Header="Объект" Binding="{Binding Fnn3}" Width="*"/>
+                                </DataGrid.Columns>
+
+                            </DataGrid>
+                        </GroupBox>
+                        <!--==============================================================================================-->
+
+                        <!--**********************************************************************************************-->
+                        <GroupBox Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" 
+                                    DataContext="{Binding ElementName=listzonzak, Path=SelectedItem}"
+                                    Header="{Binding ZNZone}">
+                            <RichTextBox Background="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                            ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                            Name="rtbNZone">
+                                <FlowDocument>
+                                    <Paragraph>
+                                        <Run Text="{Binding Psn07}"></Run>
+                                    </Paragraph>
+                                </FlowDocument>
+                            </RichTextBox>
+                        </GroupBox>
+                        <!--==============================================================================================-->
+
+                        <!--**********************************************************************************************-->
+                        <GroupBox Name="SelectMsg" Grid.Row="2" Grid.Column="0" BorderThickness="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                                        DataContext="{Binding ElementName=listzonzak, Path=SelectedItem}">
+
+                            <Grid Name="grInProcess" Background="LightGray"
+                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="4*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Row="0" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                            Foreground="Blue">Объект</TextBlock>
+                                <TextBlock Grid.Row="1" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                            Foreground="Blue">Заказчик</TextBlock>
+                                <TextBlock Grid.Row="2" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left" 
+                                            Foreground="Blue">Название зоны</TextBlock>
+                                <TextBlock Name="Obj" Grid.Row="0" Grid.Column="1" FontSize="14" FontWeight="Bold"
+                                            Text="{Binding Fnn3}"></TextBlock>
+                                <TextBlock Name="Add" Grid.Row="1" Grid.Column="1" FontSize="14" FontWeight="Bold"
+                                            Text="{Binding ZReserve }"></TextBlock>
+                                <TextBlock Name="Zakaz" Grid.Row="2" Grid.Column="1" FontSize="14" FontWeight="Bold"
+                                            Text="{Binding ZNZone }"></TextBlock>
+
+                            </Grid>
+                        </GroupBox>
+                        <!--==============================================================================================-->
+
+                        <!--**********************************************************************************************-->
+                        <GroupBox Header="Объект" Grid.Row="3" Grid.Column="0" BorderThickness="2" 
+                                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                            <Grid DataContext="{Binding ElementName=listzonzak, Path=SelectedItem}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Row="0" BorderBrush="Gray" BorderThickness="1">
+                                    <TextBlock Grid.Row="0" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                                Foreground="Blue" Padding="2">Номер централи</TextBlock>
+                                </Border>
+                                <Border Grid.Row="1" BorderBrush="Gray" BorderThickness="1,0,1,1">
+                                    <TextBlock  FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                                Foreground="Blue">Модель</TextBlock>
+                                </Border>
+                                <Border Grid.Row="2" BorderBrush="Gray" BorderThickness="1,0,1,1">
+                                    <TextBlock FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left" 
+                                                Foreground="Blue">Статус</TextBlock>
+                                </Border>
+                                <Border Grid.Row="3" BorderBrush="Gray" BorderThickness="1,0,1,1">
+                                    <TextBlock FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left" 
+                                                Foreground="Blue">Инженер</TextBlock>
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="1" BorderBrush="Gray" BorderThickness="0,1,0,1">
+                                    <TextBlock  FontSize="14" FontWeight="Bold"
+                                                Text="{Binding Path=Tcentral}"></TextBlock>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="1" BorderBrush="Gray" BorderThickness="0,0,0,1">
+                                    <TextBlock FontSize="14" FontWeight="Bold"
+                                                Text="{Binding Model }"></TextBlock>
+                                </Border>
+                                <Border Grid.Row="2" Grid.Column="1" BorderBrush="Gray" BorderThickness="0,0,0,1">
+                                    <TextBlock FontSize="14" FontWeight="Bold"
+                                                Text="{Binding Statusn3}"></TextBlock>
+                                </Border>
+                                <Border Grid.Row="3" Grid.Column="1" BorderBrush="Gray" BorderThickness="0,0,0,1">
+                                    <TextBlock FontSize="14" FontWeight="Bold"
+                                                Text="{Binding ZInzen}"></TextBlock>
+                                </Border>
+                                <!--********************************************************************-->
+                                <Border Grid.Row="0" Grid.Column="2" BorderBrush="Gray" BorderThickness="1,1,1,0">
+                                    <TextBlock FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                                Foreground="Blue" Padding="2">Номер договора</TextBlock>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="2" BorderBrush="Gray" BorderThickness="1">
+                                    <TextBlock FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                                Foreground="Blue" Padding="2">Состояние договора</TextBlock>
+                                </Border>
+                                <Border Grid.Row="2" Grid.Column="2" BorderBrush="Gray" BorderThickness="1,0,1,0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border BorderBrush="Gray" BorderThickness="0,0,1,0">
+                                            <TextBlock FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                                    Foreground="Blue" Padding="2">Группа</TextBlock>
+                                        </Border>
+                                        <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="0">
+                                            <TextBlock Grid.Column="1" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                    Text="{Binding ZGru}"></TextBlock>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                                <Border Grid.Row="3" Grid.Column="2" BorderBrush="Gray" BorderThickness="1">
+                                    <TextBlock FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                                    Foreground="Blue" Padding="2">Датчики(дым,темп,руч)</TextBlock>
+                                </Border>
+                                <!--********************************************************************-->
+                                <Border Grid.Row="0" Grid.Column="3" BorderBrush="Gray" BorderThickness="0,1,1,0">
+                                    <ComboBox Name="cbNumContract" 
+                                                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                ItemsSource="{Binding DataContext.NumContracts, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                SelectedIndex="{Binding DataContext.SelectedIndexNC, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                SelectedItem="{Binding DataContext.SelectedItemNContract, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                    </ComboBox>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="3" BorderBrush="Gray" BorderThickness="0,0,1,0">
+                                    <TextBlock DataContext="{Binding ElementName=cbNumContract,Path=SelectedItem}" FontSize="14" FontWeight="Bold"
+                                                Text="{Binding Status}"></TextBlock>
+                                </Border>
+                                <Border Grid.Row="2" Grid.Column="3" BorderBrush="Gray" BorderThickness="0,1,1,1">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border BorderBrush="Gray" BorderThickness="0,0,1,0">
+                                            <TextBlock FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                                    Foreground="Blue" Padding="2">Зона</TextBlock>
+                                        </Border>
+                                        <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="0">
+                                            <TextBlock Grid.Column="1" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                    Text="{Binding ZZone}"></TextBlock>
+                                        </Border>
+                                    </Grid>
+
+                                </Border>
+                                <Border Grid.Row="3" Grid.Column="3" BorderBrush="Gray" BorderThickness="0,0,1,1">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition Width="64*"/>
+                                            <ColumnDefinition Width="64*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border BorderBrush="Gray" BorderThickness="0,0,1,0" Grid.ColumnSpan="2" Margin="0,0,0,0.2">
+                                            <TextBlock FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                    Text="{Binding ZTda }"></TextBlock>
+                                        </Border>
+                                        <Border Grid.Column="2" BorderBrush="Gray" BorderThickness="0" Margin="0,0,0,0.2">
+
+                                        </Border>
+                                    </Grid>
+
+                                </Border>
+                            </Grid>
+                        </GroupBox>
+                        <!--==============================================================================================-->
+
+                        <!--**********************************************************************************************-->
+                        <GroupBox Header="Примечание объекта" Grid.Row="3" Grid.RowSpan="2" Grid.Column="1" BorderThickness="2"
+                                    DataContext="{Binding ElementName=listzonzak, Path=SelectedItem}">
+                            <RichTextBox Background="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                            ScrollViewer.VerticalScrollBarVisibility="Auto" Name="rtbPsObj">
+                                <FlowDocument>
+                                    <Paragraph>
+                                        <Run Text="{Binding Psn3}" FontWeight="Bold"></Run>
+                                    </Paragraph>
+                                </FlowDocument>
+                            </RichTextBox>
+                        </GroupBox>
+                        <!--==============================================================================================-->
+
+                        <!--**********************************************************************************************-->
+                        <Grid Grid.Row="4" Grid.Column="0" DataContext="{Binding ElementName=listzonzak, Path=SelectedItem}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <GroupBox Grid.Column="0" Header="Телефоны объекта" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                                    BorderThickness="2">
+                                <RichTextBox Background="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" Name="rtbTelObj">
+                                    <FlowDocument>
+                                        <Paragraph>
+                                            <Run Text="{Binding Otn3 }" FontWeight="Bold"></Run>
+                                        </Paragraph>
+                                    </FlowDocument>
+                                </RichTextBox>
+                            </GroupBox>
+                            <GroupBox Header="Адрес объекта" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                                <RichTextBox Background="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                            ScrollViewer.VerticalScrollBarVisibility="Auto" Name="rtbAddrObj">
+                                    <FlowDocument>
+                                        <Paragraph>
+                                            <Run Text="{Binding Adrn3 }"></Run>
+                                        </Paragraph>
+                                    </FlowDocument>
+                                </RichTextBox>
+                            </GroupBox>
+                        </Grid>
+                        <!--==============================================================================================-->
+
+                        <!--**********************************************************************************************-->
+                        <Grid Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" DataContext="{Binding ElementName=listzonzak, Path=SelectedItem}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <GroupBox Header="Дислокация (Примечание зоны)" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                                <RichTextBox Background="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                            ScrollViewer.VerticalScrollBarVisibility="Auto" Name="rtbDislock">
+                                    <FlowDocument>
+                                        <Paragraph>
+                                            <Run Text="{Binding Psn07 }"></Run>
+                                        </Paragraph>
+                                    </FlowDocument>
+                                </RichTextBox>
+                            </GroupBox>
+                            <RichTextBox Grid.Column="1" Background="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                            ScrollViewer.VerticalScrollBarVisibility="Auto" Name="rtcEmpty">
+                                <FlowDocument>
+                                    <Paragraph>
+                                        <Run Text="{Binding Psn07 }"></Run>
+                                    </Paragraph>
+                                </FlowDocument>
+                            </RichTextBox>
+                        </Grid>
+                        <!--==============================================================================================-->
+
+                    </Grid>
+                </TabItem>
+            </TabControl>
+            <!--=================================================================================-->
+
+        </Grid>       
+        <!--====================================================================================-->
 
     </Grid>
 </Window>
